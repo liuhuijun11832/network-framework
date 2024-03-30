@@ -1,9 +1,14 @@
 package org.hoey.util;
 
+import org.hoey.exception.ExceptionType;
+import org.hoey.exception.FrameworkException;
+import org.hoey.exception.constant.Constants;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.nio.charset.StandardCharsets;
 
 public final class NativeUtil {
 
@@ -37,5 +42,56 @@ public final class NativeUtil {
         BYTE_HANDLE.set(memorySegment, index, value);
     }
 
+    public static int getInt(MemorySegment memorySegment, long index) {
+        return (int) INT_HANDLER.get(memorySegment, index);
+    }
+
+    public static void setInt(MemorySegment memorySegment, long index, int value) {
+        INT_HANDLER.set(memorySegment, index, value);
+    }
+
+    public static short getShort(MemorySegment memorySegment, long index) {
+        return (short) SHORT_HANDLER.get(memorySegment, index);
+    }
+
+    public static void setShort(MemorySegment memorySegment, long index, short value) {
+        SHORT_HANDLER.set(memorySegment, index, value);
+    }
+
+    public static long getLong(MemorySegment memorySegment, long index) {
+        return (long) LONG_HANDLER.get(memorySegment, index);
+    }
+
+    public static void setLong(MemorySegment memorySegment, long index, long value) {
+        LONG_HANDLER.set(memorySegment, index, value);
+    }
+
+    public static String getString(MemorySegment memorySegment) {
+        return getString(memorySegment, 0);
+    }
+
+    public static String getString(MemorySegment ptr, int maxLength) {
+        if (maxLength > 0) {
+            byte[] bytes = new byte[maxLength];
+            for (int i = 0; i < maxLength; i++) {
+                byte b = getByte(ptr, i);
+                if (b == 0) {
+                    return new String(bytes, 0, i);
+                }
+                bytes[i] = b;
+            }
+            return new String(bytes);
+        } else {
+            for (int i = 0; i < Integer.MAX_VALUE; i++) {
+                byte b = getByte(ptr, i);
+                if (b == Constants.NUT) {
+                    byte[] bytes = new byte[i];
+                    MemorySegment.copy(ptr, ValueLayout.JAVA_BYTE, 0, bytes, 0, i);
+                    return new String(bytes, StandardCharsets.UTF_8);
+                }
+            }
+        }
+        throw new FrameworkException(ExceptionType.NATIVE, Constants.UNRECHAED);
+    }
 
 }

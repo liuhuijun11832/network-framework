@@ -1,5 +1,6 @@
 package org.hoey;
 
+import org.hoey.util.NativeUtil;
 import org.slf4j.Logger;
 
 import java.lang.foreign.Arena;
@@ -14,6 +15,8 @@ public class Main {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment ms = arena.allocate(ValueLayout.JAVA_INT);
             logger.info("MemorySegment address: {}", ms.address());
+            NativeUtil.setInt(ms, 0L, 123);
+            logger.info("MemorySegment value: {}", NativeUtil.getInt(ms, 0L));
         }
     }
 }
