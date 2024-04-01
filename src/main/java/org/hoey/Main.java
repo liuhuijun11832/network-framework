@@ -1,5 +1,6 @@
 package org.hoey;
 
+import org.hoey.io.ReadBuffer;
 import org.hoey.util.NativeUtil;
 import org.slf4j.Logger;
 
@@ -18,6 +19,12 @@ public class Main {
             NativeUtil.setInt(ms, 0L, 123);
             logger.info("MemorySegment value: {}", NativeUtil.getInt(ms, 0L));
 
+        }
+
+        try(Arena arena = Arena.ofConfined()) {
+            MemorySegment memorySegment = NativeUtil.allocateString(arena, "hello world");
+            ReadBuffer readBuffer = new ReadBuffer(memorySegment);
+            logger.info("Accessing readBuffer : {}", readBuffer.readCStr());
         }
     }
 }
