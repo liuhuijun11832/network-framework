@@ -17,6 +17,7 @@ public class Main {
             logger.info("MemorySegment address: {}", ms.address());
             NativeUtil.setInt(ms, 0L, 123);
             logger.info("MemorySegment value: {}", NativeUtil.getInt(ms, 0L));
+
         }
     }
 }

@@ -2,10 +2,12 @@ package org.hoey.io;
 
 import org.hoey.exception.ExceptionType;
 import org.hoey.exception.FrameworkException;
+import org.hoey.exception.constant.Constants;
 import org.hoey.util.NativeUtil;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.nio.charset.StandardCharsets;
 
 public final class ReadBuffer {
 
@@ -108,5 +110,24 @@ public final class ReadBuffer {
         } else {
             return ms;
         }
+    }
+
+    public byte[] readUntil(byte... separators) {
+        for(long cur = readIndex; cur <= size - separators.length; cur++) {
+            if(NativeUtil.matches(memorySegment, cur, separators)) {
+                byte[] result = cur == readIndex ? Constants.EMPTY_BYTES : memorySegment.asSlice(readIndex, cur - readIndex).toArray(ValueLayout.JAVA_BYTE);
+                readIndex = cur + separators.length;
+                return result;
+            }
+        }
+        return null;
+    }
+
+    public String readCStr() {
+        byte[] bytes = readUntil(Constants.NUT);
+        if(bytes == null || bytes.length == 0) {
+            return null;
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

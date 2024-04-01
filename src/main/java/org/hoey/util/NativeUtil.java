@@ -4,6 +4,7 @@ import org.hoey.exception.ExceptionType;
 import org.hoey.exception.FrameworkException;
 import org.hoey.exception.constant.Constants;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
@@ -91,7 +92,35 @@ public final class NativeUtil {
                 }
             }
         }
-        throw new FrameworkException(ExceptionType.NATIVE, Constants.UNRECHAED);
+        throw new FrameworkException(ExceptionType.NATIVE, Constants.UNREACHED);
     }
+
+
+    public static MemorySegment allocateString(Arena arena, String str) {
+        return arena.allocateUtf8String(str);
+    }
+
+    public static MemorySegment allocateString(Arena arena, String str, int len) {
+        MemorySegment memorySegment = MemorySegment.ofArray(str.getBytes(StandardCharsets.UTF_8));
+        long size = memorySegment.byteSize();
+        if (len < size +1) {
+            throw new RuntimeException("String out of range");
+        }
+        MemorySegment allocated = arena.allocateArray(ValueLayout.JAVA_BYTE, len);
+        MemorySegment.copy(memorySegment, 0, allocated, 0, size);
+        setByte(memorySegment, size, Constants.NUT);
+        return memorySegment;
+    }
+
+    public static boolean matches(MemorySegment m, long offset, byte[] bytes) {
+        for(int index = 0; index < bytes.length; index++) {
+            if (getByte(m, offset + index) != bytes[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
 }
