@@ -10,4 +10,13 @@ public class Constants {
 
     public static final byte[] EMPTY_BYTES = new byte[0];
 
+    public static final int INITIAL = 0;
+
+    public static final int STARTING = 1;
+
+    public static final int RUNNING = 2;
+
+    public static final int CLOSING = 3;
+
+    public static final int STOPPED = 4;
 }
