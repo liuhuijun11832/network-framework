@@ -15,6 +15,8 @@ public final class NativeUtil {
 
     public static final MemorySegment NULL_POINTER = MemorySegment.ofAddress(0);
 
+    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+
     /**
      * MethodHandle与VarHandle类均为Java语言自JDK9以后引入的新的反射调用机制，
      * 其中MethodHandle类可以被理解成函数指针，用于高效的访问函数，
@@ -121,6 +123,9 @@ public final class NativeUtil {
         return true;
     }
 
+    public static int getCpuCount(){
+        return CPU_COUNT;
+    }
 
 
 }
