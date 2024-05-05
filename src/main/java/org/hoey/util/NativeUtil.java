@@ -3,6 +3,7 @@ package org.hoey.util;
 import org.hoey.exception.ExceptionType;
 import org.hoey.exception.FrameworkException;
 import org.hoey.exception.constant.Constants;
+import org.hoey.os.OsType;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -11,11 +12,19 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 
+import static org.hoey.os.OsType.Linux;
+import static org.hoey.os.OsType.MacOS;
+import static org.hoey.os.OsType.Windows;
+
 public final class NativeUtil {
 
     public static final MemorySegment NULL_POINTER = MemorySegment.ofAddress(0);
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+
+    private static final String osName = System.getProperty("os.name").toLowerCase();
+
+    private static final OsType osType =
 
     /**
      * MethodHandle与VarHandle类均为Java语言自JDK9以后引入的新的反射调用机制，
@@ -31,6 +40,20 @@ public final class NativeUtil {
 
     public NativeUtil() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    private static OsType detectOsType() {
+        if (osName.startsWith("Windows")) {
+            return Windows;
+        }else if (osName.contains("Linux")){
+            return Linux;
+        }else if (osName.contains("mac") && osName.contains("os")){
+            return MacOS;
+        } else return OsType.Unknown;
+    }
+
+    public static OsType osType(){
+        return osType;
     }
 
     public static boolean isNullPointer(MemorySegment memorySegment) {
