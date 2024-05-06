@@ -24,7 +24,7 @@ public final class NativeUtil {
 
     private static final String osName = System.getProperty("os.name").toLowerCase();
 
-    private static final OsType osType =
+    private static final OsType osType = detectOsType();
 
     /**
      * MethodHandle与VarHandle类均为Java语言自JDK9以后引入的新的反射调用机制，
@@ -148,6 +148,13 @@ public final class NativeUtil {
 
     public static int getCpuCount(){
         return CPU_COUNT;
+    }
+
+    public static int castInt(long l) {
+        if(l < I_MIN || l > I_MAX) {
+            throw new FrameworkException(ExceptionType.NATIVE, Constants.UNREACHED);
+        }
+        return (int) l;
     }
 
 
