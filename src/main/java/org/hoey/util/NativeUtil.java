@@ -6,7 +6,9 @@ import org.hoey.exception.constant.Constants;
 import org.hoey.os.OsType;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -25,6 +27,13 @@ public final class NativeUtil {
     private static final String osName = System.getProperty("os.name").toLowerCase();
 
     private static final OsType osType = detectOsType();
+
+    private static final Arena globalArena = Arena.global();
+
+    private static final Linker linker = Linker.nativeLinker();
+
+    private static final String libPath = System.getProperty("TENET_LIBRARY_PATH");
+
 
     /**
      * MethodHandle与VarHandle类均为Java语言自JDK9以后引入的新的反射调用机制，
@@ -151,11 +160,22 @@ public final class NativeUtil {
     }
 
     public static int castInt(long l) {
-        if(l < I_MIN || l > I_MAX) {
+        if(l < Integer.MIN_VALUE || l > Integer.MIN_VALUE) {
             throw new FrameworkException(ExceptionType.NATIVE, Constants.UNREACHED);
         }
         return (int) l;
     }
+
+    public static String getDynamicLibraryName(String identifier){
+        return switch (osType()) {
+            case Windows -> STR."lib\{identifier}.dll";
+            case Linux -> STR."lib\{identifier}.so";
+            case MacOS -> STR."lib\{identifier}.dylib";
+            default -> throw new FrameworkException(ExceptionType.NATIVE, "Unsupported operating system");
+        };
+    }
+
+    // todo 未完待续 获取动态库
 
 
 }
